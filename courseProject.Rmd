@@ -1,0 +1,44 @@
+---
+title: "Practical Machine Learning - Course Project"
+author: "Graham Booth"
+date: "9/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Download and parse the csv files:
+```{r}
+if (!file.exists("train.csv")) { 
+  download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", "train.csv")  
+}
+if (!file.exists("test.csv")) { 
+  download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", "test.csv")
+}
+train <- read.csv("train.csv")
+test <- read.csv("test.csv")
+```
+
+use data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. 
+
+info: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+
+predict the manner in which they did the exercise ("classe" variable in the training set).
+You may use any of the other variables to predict with.
+create a report describing
+- how you built your model
+- how you used cross validation
+- what you think the expected out of sample error is
+- why you made the choices you did.
+Use your prediction model to predict 20 different test cases.
+
+link to a Github repo
+with your R markdown and compiled HTML file describing your analysis.
+text < 2000 words
+figures < 5
+repo with a gh-pages branch so the HTML page can be viewed online
+Please be sure that if they download the repo, they will be able to view the compiled HTML version of your analysis.
+
+Apply your machine learning algorithm to the 20 test cases available in the test data above and submit your predictions in appropriate format to the Course Project Prediction Quiz for automated grading.
