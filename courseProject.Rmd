@@ -9,7 +9,25 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Download and parse the csv files:
+# Introduction
+
+The aim of this project is to predict the manner in which participants performed a physical exercise whilst wearing movement-tracking sensors. More info can be found here: http://web.archive.org/web/20161224072740/http://groupware.les.inf.puc-rio.br/har 
+
+Prediction will be performed using the variable "classe", which represents whether the exercise was performed exactly according to the specification (Classe A), or whether errors were made such as throwing the elbows to the front, lifting the dumbbell only halfway, lowering the dumbbell only halfway or throwing the hips to the front (Classe's B-E).
+
+# Dealing with the Data: Exploratory Analysis and Cleaning
+
+The initial dataset contains 160 features, which would make for quite a complex analysis. Therefore my initial aim was to explore the data in order to select the most salient variables to predict with. To begin with we load the necessary libraries for the project. Dplyr is used for data manipulation, Caret for generating the training models, Tidyr for the unite function (unites columns in data frames) and Stringr for str_pad to join two timestamps.
+
+```{r, message = FALSE}
+library(dplyr)
+library(caret)
+library(tidyr)
+library(stringr)
+```
+
+Next I downloaded and read-in the comma-separated values (.csv) files for the train and test sets:
+
 ```{r}
 if (!file.exists("train.csv")) { 
   download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", "train.csv")  
@@ -17,28 +35,129 @@ if (!file.exists("train.csv")) {
 if (!file.exists("test.csv")) { 
   download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", "test.csv")
 }
-train <- read.csv("train.csv")
+train <- read.csv("train.csv", na.strings=c("", "NA"))
 test <- read.csv("test.csv")
 ```
 
-use data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. 
+Next I dropped the index row for each of the sets and converted the 'classe' and 'user_name' variables to factors.
 
-info: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+```{r}
+train <- train[,-1] # drop index row
+test <- test[,-1] # drop index row
+train <- train %>% mutate(classe = as.factor(classe)) %>% mutate(user_name = as.factor(user_name))
+test <- test %>% mutate(user_name = as.factor(user_name))
+```
 
-predict the manner in which they did the exercise ("classe" variable in the training set).
-You may use any of the other variables to predict with.
-create a report describing
-- how you built your model
-- how you used cross validation
-- what you think the expected out of sample error is
-- why you made the choices you did.
-Use your prediction model to predict 20 different test cases.
+Next I considered which variables might be redundant within the dataset. It seems that one of the most important factors is time i.e. when a particular part of a movement was performed likely has a lot to do with whether it was performed correctly or incorrectly. This can be seen in the following plot of timestamp vs the 'magnet_arm_y' accelerometer variable:
 
-link to a Github repo
-with your R markdown and compiled HTML file describing your analysis.
-text < 2000 words
-figures < 5
-repo with a gh-pages branch so the HTML page can be viewed online
-Please be sure that if they download the repo, they will be able to view the compiled HTML version of your analysis.
+```{r, dependson="trainingTest", echo = FALSE}
+#,fig.height=2,fig.width=4
+train_toPlot <- train %>% filter(user_name == "jeremy") %>%
+mutate(raw_timestamp_part_2 = str_pad(raw_timestamp_part_2, width=6, side="left", pad="0")) %>% unite("raw_timestamp", c("raw_timestamp_part_1", "raw_timestamp_part_2"), sep="") %>% arrange(raw_timestamp)
+# plot timestamp on x, magnet_arm_y on y
+plot(train_toPlot$raw_timestamp, train_toPlot$magnet_arm_y, type='l', lwd=2, xlab="Timestamp", ylab="Magnet Arm", main="Arm-Sensor Values over Time for Participant 'Jeremy'")
+```
 
-Apply your machine learning algorithm to the 20 test cases available in the test data above and submit your predictions in appropriate format to the Course Project Prediction Quiz for automated grading.
+However, in the training set we can see that some variables are derived from the raw XYZ accelerometer data in 'time-windows' (i.e their values are aggregated over time, appearing every n steps and with other values being NA's). When looking at the test set, all time-windowed variables contain purely NA values. This makes it hard to consider these variables in any meaningful way. Therefore for the limited purposes of this exercise I decided to remove them from the analysis.
+
+```{r}
+train_selected <- train %>% select_if(~ !any(is.na(.))) # drop all 'time-windowed' variables
+```
+
+Next I looked for near-zero variance in the remaining variables and removed one variable ('new_window') which met these criteria:
+
+```{r}
+nzv <- nearZeroVar(train_selected, saveMetrics=TRUE)
+not_nsv <- nzv %>% filter(nzv == FALSE)
+train_selected <- train_selected %>% select(rownames(not_nsv))
+```
+
+Now, we can attempt to visualise some of the data to see the variation contained within it. Below we see the roll, pitch and yaw variables for the forearm sensor for a single user (carlitos) across all five ways of performing the exercise ('classe' A-E). 
+
+```{r, dependson="trainingTest", echo = FALSE}
+# #
+# train_toPlot <- train_selected %>%
+#   select(!(
+#     contains("timestamp") |
+#     contains("window") |
+#     contains("dumbbell") |
+#     contains("belt") |
+#     contains("gyros") |
+#     contains("magnet")
+#   ))
+train_toPlot <- train_selected %>% filter(user_name == "carlitos") %>% select(contains("_forearm") | matches("classe"))
+# first lets focus on one accellerometer i.e. dumbbell
+train_toPlot <- train_toPlot %>% select(contains("roll") | contains("pitch") | contains("yaw") | matches("classe"))
+# now lets see which features correlate with classe
+featurePlot(x=train_toPlot,y=train_toPlot$classe,plot="pairs")
+```
+
+From this we can see that the data appears to be varied enough both within itself and across the different classes to allow for good modelling/prediction and is mostly signal with little noise.
+
+Now that the dataset has been cleaned and the most salient variables selected, it can be split into train and validation sets, as follows:
+
+```{r}
+inTrain <- createDataPartition(y=train_selected$classe,p=0.75, list=FALSE)
+training_set <- train_selected[inTrain,]
+validation_set <- train_selected[-inTrain,]
+```
+
+From the purposes of this report, I call this a 'validation set' so as to make the distinction between this and the provided test data that we will later predict against.
+
+# Model Selection and Cross Validation
+
+After analysis and cleanup, we were left with `r length(colnames(train_selected))-1` variables on which to train our models. Our approach to model-selection was to simply compare the performance of three commonly-used models: random forest, gradient boosting machine and support vector machine.
+
+Cross validation is the process of estimating the accuracy of our model using the training set rather than an separate test set. For our analysis we chose the k-fold cross validation technique, using three folds. The method is easy to implement using the trainControl function in the caret package, and results in skill estimates that generally have a lower bias than other methods.
+
+### Random Forest
+
+```{r}
+set.seed(10101)
+fitControl <- trainControl(method="cv", number=3, verboseIter=F)
+modFit_rf <- train(classe ~ ., data=training_set, method="rf", trControl=fitControl)
+predict_rf <- predict(modFit_rf, validation_set)
+confusionMatrix_rf <- confusionMatrix(predict_rf, factor(validation_set$classe))
+confusionMatrix_rf
+```
+
+From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_rf$overall['Accuracy'], 4)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_rf$overall['Accuracy'], 4)`.
+
+### Gradient Boosting Machine
+
+```{r}
+set.seed(10101)
+fitControl_gbm <- trainControl(method="cv", number=3, verboseIter=F)
+modFit_gbm  <- train(classe ~ ., data=training_set, method = "gbm", trControl = fitControl_gbm, verbose = FALSE)
+predict_gbm <- predict(modFit_gbm, validation_set)
+confusionMatrix_gbm <- confusionMatrix(predict_gbm, validation_set$classe)
+confusionMatrix_gbm
+```
+
+From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_gbm$overall['Accuracy'], 4)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_gbm$overall['Accuracy'], 4)`.
+
+### Support Vector Machine
+
+```{r}
+set.seed(10101)
+fitControl_svm <- trainControl(method="cv", number=3, verboseIter=F)
+modFit_svm <- train(classe ~ ., data=training_set, method="svmLinear", trControl = fitControl_svm, tuneLength = 5, verbose = F)
+predict_svm <- predict(modFit_svm, validation_set)
+confusionMatrix_svm <- confusionMatrix(predict_svm, factor(validation_set$classe))
+confusionMatrix_svm
+```
+
+From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_svm$overall['Accuracy'], 4)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_svm$overall['Accuracy'], 4)`.
+
+# Conclusion and Prediction
+
+From the above results, it is clear that the random forest model performed the best in terms of accuracy and out-of-sample error, so we will use this to predict our final 20 results for submission in the quiz. To do this, I made the variables in the test set match those in the training set, by selecting only columns from test which exist in train (excepting the 'classe' variable which does not exist in the test set). I then performed prediction of the 'classe' variable in the test set using our random forest model:
+
+```{r}
+names <- colnames(train_selected)
+names <- names[-length(names)] # remove last name "classe"
+test_selected <- test %>% select(all_of(names))
+predict(modFit_rf, newdata=test_selected)
+```
+
+The above results will be submitted as answers to the quiz.
