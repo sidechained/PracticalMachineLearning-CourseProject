@@ -233,32 +233,32 @@ confusionMatrix_rf</code></pre>
 ##          A 1395    0    0    0    0
 ##          B    0  949    1    0    0
 ##          C    0    0  854    0    0
-##          D    0    0    0  803    0
-##          E    0    0    0    1  901
+##          D    0    0    0  804    0
+##          E    0    0    0    0  901
 ## 
 ## Overall Statistics
 ##                                      
-##                Accuracy : 0.9996     
-##                  95% CI : (0.9985, 1)
+##                Accuracy : 0.9998     
+##                  95% CI : (0.9989, 1)
 ##     No Information Rate : 0.2845     
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16  
 ##                                      
-##                   Kappa : 0.9995     
+##                   Kappa : 0.9997     
 ##                                      
 ##  Mcnemar&#39;s Test P-Value : NA         
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   1.0000   0.9988   0.9988   1.0000
-## Specificity            1.0000   0.9997   1.0000   1.0000   0.9998
-## Pos Pred Value         1.0000   0.9989   1.0000   1.0000   0.9989
-## Neg Pred Value         1.0000   1.0000   0.9998   0.9998   1.0000
+## Sensitivity            1.0000   1.0000   0.9988   1.0000   1.0000
+## Specificity            1.0000   0.9997   1.0000   1.0000   1.0000
+## Pos Pred Value         1.0000   0.9989   1.0000   1.0000   1.0000
+## Neg Pred Value         1.0000   1.0000   0.9998   1.0000   1.0000
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2845   0.1935   0.1741   0.1637   0.1837
-## Detection Prevalence   0.2845   0.1937   0.1741   0.1637   0.1839
-## Balanced Accuracy      1.0000   0.9999   0.9994   0.9994   0.9999</code></pre>
-<p>From the above we can see that the overall accuracy of the model is 0.9996 and therefore the expected out-of-sample error is 4^{-4}.</p>
+## Detection Rate         0.2845   0.1935   0.1741   0.1639   0.1837
+## Detection Prevalence   0.2845   0.1937   0.1741   0.1639   0.1837
+## Balanced Accuracy      1.0000   0.9999   0.9994   1.0000   1.0000</code></pre>
+<p>From the above we can see that the overall accuracy of the model is 0.999796 and therefore the expected out-of-sample error is 2.04^{-4}.</p>
 </div>
 <div id="gradient-boosting-machine" class="section level3">
 <h3>Gradient Boosting Machine</h3>
@@ -272,11 +272,11 @@ confusionMatrix_gbm</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1394    2    0    0    0
-##          B    1  946    3    0    0
-##          C    0    1  851    1    0
-##          D    0    0    1  801    5
-##          E    0    0    0    2  896
+##          A 1394    1    0    0    0
+##          B    1  945    2    0    0
+##          C    0    2  845    0    0
+##          D    0    1    8  803    0
+##          E    0    0    0    1  901
 ## 
 ## Overall Statistics
 ##                                           
@@ -292,15 +292,15 @@ confusionMatrix_gbm</code></pre>
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9993   0.9968   0.9953   0.9963   0.9945
-## Specificity            0.9994   0.9990   0.9995   0.9985   0.9995
-## Pos Pred Value         0.9986   0.9958   0.9977   0.9926   0.9978
-## Neg Pred Value         0.9997   0.9992   0.9990   0.9993   0.9988
+## Sensitivity            0.9993   0.9958   0.9883   0.9988   1.0000
+## Specificity            0.9997   0.9992   0.9995   0.9978   0.9998
+## Pos Pred Value         0.9993   0.9968   0.9976   0.9889   0.9989
+## Neg Pred Value         0.9997   0.9990   0.9975   0.9998   1.0000
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2843   0.1929   0.1735   0.1633   0.1827
-## Detection Prevalence   0.2847   0.1937   0.1739   0.1646   0.1831
-## Balanced Accuracy      0.9994   0.9979   0.9974   0.9974   0.9970</code></pre>
-<p>From the above we can see that the overall accuracy of the model is 0.9967 and therefore the expected out-of-sample error is 0.0033.</p>
+## Detection Rate         0.2843   0.1927   0.1723   0.1637   0.1837
+## Detection Prevalence   0.2845   0.1933   0.1727   0.1656   0.1839
+## Balanced Accuracy      0.9995   0.9975   0.9939   0.9983   0.9999</code></pre>
+<p>From the above we can see that the overall accuracy of the model is 0.996737 and therefore the expected out-of-sample error is 0.003263.</p>
 </div>
 <div id="support-vector-machine" class="section level3">
 <h3>Support Vector Machine</h3>
@@ -314,35 +314,35 @@ confusionMatrix_svm</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1353  110    6    0    0
-##          B   36  781   61    5    0
-##          C    5   58  783   49    5
-##          D    1    0    5  706   43
-##          E    0    0    0   44  853
+##          A 1350   98    4    0    0
+##          B   38  789   61    2    0
+##          C    7   62  782   60    5
+##          D    0    0    8  703   47
+##          E    0    0    0   39  849
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.9127          
-##                  95% CI : (0.9045, 0.9205)
+##                Accuracy : 0.9121          
+##                  95% CI : (0.9038, 0.9199)
 ##     No Information Rate : 0.2845          
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
 ##                                           
-##                   Kappa : 0.8894          
+##                   Kappa : 0.8887          
 ##                                           
 ##  Mcnemar&#39;s Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9699   0.8230   0.9158   0.8781   0.9467
-## Specificity            0.9669   0.9742   0.9711   0.9880   0.9890
-## Pos Pred Value         0.9210   0.8845   0.8700   0.9351   0.9509
-## Neg Pred Value         0.9878   0.9582   0.9820   0.9764   0.9880
+## Sensitivity            0.9677   0.8314   0.9146   0.8744   0.9423
+## Specificity            0.9709   0.9745   0.9669   0.9866   0.9903
+## Pos Pred Value         0.9298   0.8865   0.8537   0.9274   0.9561
+## Neg Pred Value         0.9870   0.9601   0.9817   0.9756   0.9871
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2759   0.1593   0.1597   0.1440   0.1739
-## Detection Prevalence   0.2996   0.1801   0.1835   0.1540   0.1829
-## Balanced Accuracy      0.9684   0.8986   0.9434   0.9331   0.9679</code></pre>
-<p>From the above we can see that the overall accuracy of the model is 0.9127 and therefore the expected out-of-sample error is 0.0873.</p>
+## Detection Rate         0.2753   0.1609   0.1595   0.1434   0.1731
+## Detection Prevalence   0.2961   0.1815   0.1868   0.1546   0.1811
+## Balanced Accuracy      0.9693   0.9029   0.9408   0.9305   0.9663</code></pre>
+<p>From the above we can see that the overall accuracy of the model is 0.912113 and therefore the expected out-of-sample error is 0.087887.</p>
 </div>
 </div>
 <div id="conclusion-and-prediction" class="section level1">

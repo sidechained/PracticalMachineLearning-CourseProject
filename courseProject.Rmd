@@ -121,7 +121,7 @@ confusionMatrix_rf <- confusionMatrix(predict_rf, factor(validation_set$classe))
 confusionMatrix_rf
 ```
 
-From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_rf$overall['Accuracy'], 4)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_rf$overall['Accuracy'], 4)`.
+From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_rf$overall['Accuracy'], 6)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_rf$overall['Accuracy'], 6)`.
 
 ### Gradient Boosting Machine
 
@@ -134,7 +134,7 @@ confusionMatrix_gbm <- confusionMatrix(predict_gbm, validation_set$classe)
 confusionMatrix_gbm
 ```
 
-From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_gbm$overall['Accuracy'], 4)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_gbm$overall['Accuracy'], 4)`.
+From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_gbm$overall['Accuracy'], 6)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_gbm$overall['Accuracy'], 6)`.
 
 ### Support Vector Machine
 
@@ -147,7 +147,7 @@ confusionMatrix_svm <- confusionMatrix(predict_svm, factor(validation_set$classe
 confusionMatrix_svm
 ```
 
-From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_svm$overall['Accuracy'], 4)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_svm$overall['Accuracy'], 4)`.
+From the above we can see that the overall accuracy of the model is `r round(confusionMatrix_svm$overall['Accuracy'], 6)` and therefore the expected out-of-sample error is `r round(1 - confusionMatrix_svm$overall['Accuracy'], 6)`.
 
 # Conclusion and Prediction
 
